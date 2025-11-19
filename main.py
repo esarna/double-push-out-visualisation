@@ -1,7 +1,7 @@
 import sys
 import matplotlib.pyplot as plt
-from graph import Graph
-from production import Production
+from src.graph import Graph
+from src.production import Production
 
 """
 PRZYKŁADOWE UŻYCIE: 
@@ -28,7 +28,8 @@ try:
     R = Graph.from_csv(right_graph_file)
     with open(mapping_file, 'r') as f:
         mapping_line = f.readline().strip()
-    mapping_list = [int(x.strip()) for x in mapping_line.split(',') if x.strip()]
+    mapping_list = [int(x.strip())
+                    for x in mapping_line.split(',') if x.strip()]
 except Exception as e:
     print(f"Błąd wczytywania plików: {e}")
     sys.exit(1)
@@ -46,25 +47,24 @@ except Exception as e:
     sys.exit(1)
 
 
-
 # Wizualizacja grafów
-plt.figure(figsize=(5,4))
+plt.figure(figsize=(5, 4))
 plt.title("Graf wejściowy (G)")
 G.draw(title="Graf wejściowy (G)")
 
-plt.figure(figsize=(5,4))
+plt.figure(figsize=(5, 4))
 plt.title("Graf lewy produkcji (L)")
 L.draw(title="Graf lewy produkcji (L)")
 
-plt.figure(figsize=(5,4))
+plt.figure(figsize=(5, 4))
 plt.title("Graf prawy produkcji (R)")
 R.draw(title="Graf prawy produkcji (R)")
 
-plt.figure(figsize=(5,4))
+plt.figure(figsize=(5, 4))
 plt.title("Graf sklejający (K)")
 K.draw(title="Graf sklejający (K)")
 
-plt.figure(figsize=(5,4))
+plt.figure(figsize=(5, 4))
 plt.title("Graf wynikowy (G')")
 if result_graph:
     result_graph.draw(title="Graf wynikowy (G')")
