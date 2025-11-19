@@ -1,5 +1,4 @@
-from graph import Graph
-
+from .graph import Graph
 
 
 class Production:
@@ -16,7 +15,8 @@ class Production:
         R_edges = set(self.R.edges())
 
         # Krawędzie wspólne w L i R
-        K_edges = [(u, v) for (u, v) in L_edges.intersection(R_edges) if u in K_nodes and v in K_nodes]
+        K_edges = [(u, v) for (u, v) in L_edges.intersection(
+            R_edges) if u in K_nodes and v in K_nodes]
         K_graph = Graph(vertices=list(K_nodes), edges=K_edges)
 
         for node in K_graph.nodes():
@@ -43,24 +43,29 @@ class Production:
 
         # Sprawdzanie produkcji
         if len(mapping) != len(L_nodes_sorted):
-            raise Exception("Niepoprawna liczba wierzchołków w odwzorowaniu dla grafu L.")
+            raise Exception(
+                "Niepoprawna liczba wierzchołków w odwzorowaniu dla grafu L.")
 
-        mapping_dict = {Lnode: Gnode for Lnode, Gnode in zip(L_nodes_sorted, mapping)}
+        mapping_dict = {Lnode: Gnode for Lnode,
+                        Gnode in zip(L_nodes_sorted, mapping)}
 
         if len(set(mapping_dict.values())) != len(mapping_dict):
-            raise Exception("Odwzorowanie nie jest injektywne – różne węzły L odwzorowano na ten sam węzeł grafu G.")
+            raise Exception(
+                "Odwzorowanie nie jest injektywne – różne węzły L odwzorowano na ten sam węzeł grafu G.")
 
         for (u, v) in self.L.edges():
             uG = mapping_dict[u]
             vG = mapping_dict[v]
             if not output.has_edge(uG, vG):
-                raise Exception(f"Brak wymaganej krawędzi ({u}->{v}) z L w grafie początkowym (oczekiwano {uG}->{vG}).")
+                raise Exception(
+                    f"Brak wymaganej krawędzi ({u}->{v}) z L w grafie początkowym (oczekiwano {uG}->{vG}).")
 
         # Węzły
         L_nodes = set(self.L.nodes())
         R_nodes = set(self.R.nodes())
         to_remove_L = L_nodes - R_nodes     # węzły które zostaną usunięte
-        to_remove_G = {mapping_dict[Ln] for Ln in to_remove_L}  # odpowiadające im węzły w G
+        # odpowiadające im węzły w G
+        to_remove_G = {mapping_dict[Ln] for Ln in to_remove_L}
 
         #  mapping w drugą stronę
         inv_map = {Gv: Lv for Lv, Gv in mapping_dict.items()}
@@ -74,27 +79,30 @@ class Production:
                 # jeśli succ pozostaje w wyniku
                 if succ not in to_remove_G:
                     if succ not in inv_map:
-                        raise Exception(f"Naruszenie warunku wiszącej krawędzi: wierzchołek {gnode} (do usunięcia) ma krawędź do {succ}, który nie jest objęty dopasowaniem.")
+                        raise Exception(
+                            f"Naruszenie warunku wiszącej krawędzi: wierzchołek {gnode} (do usunięcia) ma krawędź do {succ}, który nie jest objęty dopasowaniem.")
                     else:
                         # succ jest w G, jest obrazem jakiegoś węzła z L
                         Lnode_removed = inv_map[gnode]
                         Lnode_other = inv_map[succ]
 
                         if not self.L.has_edge(Lnode_removed, Lnode_other):
-                            raise Exception(f"Naruszenie warunku wiszącej krawędzi: krawędź {Lnode_removed}->{Lnode_other} łączy usuwany i zachowany węzeł w G, ale nie istnieje w L.")
+                            raise Exception(
+                                f"Naruszenie warunku wiszącej krawędzi: krawędź {Lnode_removed}->{Lnode_other} łączy usuwany i zachowany węzeł w G, ale nie istnieje w L.")
 
             # krawędzie wchodzące do gnode
             for pred in list(G.nx_graph.predecessors(gnode)):
                 if pred not in to_remove_G:
                     inv_map = {Gv: Lv for Lv, Gv in mapping_dict.items()}
                     if pred not in inv_map:
-                        raise Exception(f"Naruszenie warunku wiszącej krawędzi: wierzchołek {gnode} (do usunięcia) ma krawędź od {pred}, który nie jest objęty dopasowaniem.")
+                        raise Exception(
+                            f"Naruszenie warunku wiszącej krawędzi: wierzchołek {gnode} (do usunięcia) ma krawędź od {pred}, który nie jest objęty dopasowaniem.")
                     else:
                         Lnode_removed = inv_map[gnode]
                         Lnode_other = inv_map[pred]
                         if not self.L.has_edge(Lnode_other, Lnode_removed):
-                            raise Exception(f"Naruszenie warunku wiszącej krawędzi: krawędź {Lnode_other}->{Lnode_removed} łączy zachowany i usuwany węzeł w G, ale nie istnieje w L.")
-
+                            raise Exception(
+                                f"Naruszenie warunku wiszącej krawędzi: krawędź {Lnode_other}->{Lnode_removed} łączy zachowany i usuwany węzeł w G, ale nie istnieje w L.")
 
         # Usunięcie węzłów i krawędzi do usunięcia
         for node in to_remove_G:
@@ -126,13 +134,14 @@ class Production:
 
         # dodanie nowych krawędzi
         for (u, v) in self.R.edges():
-            u_out = mapping_dict.get(u) if u in L_nodes else new_node_map.get(u)
-            v_out = mapping_dict.get(v) if v in L_nodes else new_node_map.get(v)
+            u_out = mapping_dict.get(
+                u) if u in L_nodes else new_node_map.get(u)
+            v_out = mapping_dict.get(
+                v) if v in L_nodes else new_node_map.get(v)
             if u_out is None or v_out is None:
                 continue
             if output.has_edge(u_out, v_out):
                 continue  # jeśli krawędź już istnieje
             output.add_edge(u_out, v_out)
-
 
         return output

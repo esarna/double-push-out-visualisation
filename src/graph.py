@@ -2,12 +2,11 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-
-
 class Graph:
-    def __init__(self, vertices=None, edges=None, labels=None):
+    def __init__(self, vertices=None, edges=None, vertex_labels=None, edge_labels=None):
         self.nx_graph = nx.DiGraph()
-        self.labels = {}
+        self.vertex_labels = {}
+        self.edge_labels = {}
 
         if vertices is not None:
             for v in vertices:
@@ -17,10 +16,16 @@ class Graph:
             for u, v in edges:
                 self.nx_graph.add_edge(u, v)
 
-        if labels is not None:
-            self.labels.update(labels)
-        if self.labels:
-            nx.set_node_attributes(self.nx_graph, self.labels, name="label")
+        if vertex_labels is not None:
+            self.vertex_labels.update(vertex_labels)
+        if self.vertex_labels:
+            nx.set_node_attributes(
+                self.nx_graph, self.vertex_labels, name="label")
+        if edge_labels is not None:
+            self.edge_labels.update(edge_labels)
+        if self.edge_labels:
+            nx.set_edge_attributes(
+                self.nx_graph, self.edge_labels, name="label")
 
     @classmethod
     def from_csv(cls, filepath: str):
@@ -61,7 +66,45 @@ class Graph:
                     continue  # jest jakiś syf zamiast dwóch liczb
                 edges.append((u, v))
                 # TODO: trzebaby dodać że następne częsci linii to etykiety, np 3, 1, red (3->1 etykieta= red)
-        return cls(vertices=vertices, edges=edges, labels=(labels if labels else None))
+        return cls(vertices=vertices, edges=edges, vertex_labels=(labels if labels else None))
+
+    @classmethod
+    def from_obj(cls, filepath: str):
+        vertices = []
+        edges = []
+        v_labels = {}
+        e_labels = {}
+        with open(filepath, 'r') as f:
+            lines = [line.strip() for line in f if line.strip()]
+        if not lines:
+            return cls()
+        for line in lines:
+            line = line.strip()
+            first_char = line[0]
+            if first_char == 'v':
+                label = line[1:].strip()
+                node_id = len(vertices) + 1
+                vertices.append(node_id)
+                v_labels[node_id] = label
+            elif first_char == 'e':
+                parts = line[1:].strip().split()
+                if len(parts) >= 2:
+                    try:
+                        u = int(parts[0].strip())
+                        v = int(parts[1].strip())
+                    except ValueError:
+                        print(f'[WARN] Expected numbers in line:\n\t{line}')
+                        continue
+                    label = None
+                    if len(parts) >= 3:
+                        e_labels[(u, v)] = parts[2]
+                    edges.append((u, v))
+        return cls(
+            vertices=vertices,
+            edges=edges,
+            vertex_labels=(v_labels if v_labels else None),
+            edge_labels=(e_labels if e_labels else None)
+        )
 
     def nodes(self):
         return list(self.nx_graph.nodes())
@@ -75,40 +118,49 @@ class Graph:
     def add_node(self, node, label=None):
         self.nx_graph.add_node(node)
         if label:
-            self.labels[node] = label
+            self.vertex_labels[node] = label
             nx.set_node_attributes(self.nx_graph, {node: label}, name="label")
 
-    def add_edge(self, u, v):
+    def add_edge(self, u, v, label=None):
         self.nx_graph.add_edge(u, v)
+        if label:
+            self.edge_labels[u][v] = label
+            nx.set_node_attributes(
+                self.nx_graph, {(u, v): label}, name="label")
 
     def remove_node(self, node):
         self.nx_graph.remove_node(node)
-        if node in self.labels:
-            del self.labels[node]
+        if node in self.vertex_labels:
+            del self.vertex_labels[node]
 
     def remove_edge(self, u, v):
         self.nx_graph.remove_edge(u, v)
+        if (u, v) in self.edge_labels:
+            del self.edge_labels[(u, v)]
 
     def get_labels(self, node):
-        return self.labels.get(node)
+        return self.vertex_labels.get(node)
 
     def set_label(self, node, label: str):
-        self.labels[node] = label
+        self.vertex_labels[node] = label
         nx.set_node_attributes(self.nx_graph, {node: label}, name="label")
 
-    def draw(self, title: str = None):
+    def draw(self, title: str | None = None):
         pos = nx.spring_layout(self.nx_graph, seed=42)
         labels_to_draw = {}
-        if self.labels:
+        if self.vertex_labels:
             for node in self.nx_graph.nodes():
-                if node in self.labels:
-                    labels_to_draw[node] = f"{node}:{self.labels[node]}"
+                if node in self.vertex_labels:
+                    labels_to_draw[node] = f"{node}:{self.vertex_labels[node]}"
                 else:
                     labels_to_draw[node] = str(node)
         else:
-            labels_to_draw = {node: str(node) for node in self.nx_graph.nodes()}
+            labels_to_draw = {node: str(node)
+                              for node in self.nx_graph.nodes()}
         nx.draw(self.nx_graph, pos, with_labels=True, labels=labels_to_draw, arrows=True,
                 node_color='#99ccff', node_size=500, font_size=8)
+        nx.draw_networkx_edge_labels(
+            self.nx_graph, pos, edge_labels=self.edge_labels)
         if title:
             plt.title(title)
         plt.axis('off')
