@@ -1,4 +1,5 @@
 from .graph import Graph
+import networkx as nx
 
 
 class Production:
@@ -145,3 +146,12 @@ class Production:
             output.add_edge(u_out, v_out)
 
         return output
+
+    def draw(self, title: str | None = None):
+        pos = self.L.draw(title=title)
+        max_x = 0
+        for key in pos:
+            if pos[key][0] > max_x:
+                max_x = pos[key][0]
+        offset = (max_x * 2, 0)
+        self.R.draw(title=title, offset=offset)

@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 
 
 class Graph:
-    def __init__(self, vertices=None, edges=None, vertex_labels=None, edge_labels=None):
+    def __init__(self, vertices=None, edges=None, vertex_labels=None, edge_labels=None, pos=None):
         self.nx_graph = nx.DiGraph()
         self.vertex_labels = {}
         self.edge_labels = {}
+        self.pos = {}
 
         if vertices is not None:
             for v in vertices:
@@ -26,6 +27,10 @@ class Graph:
         if self.edge_labels:
             nx.set_edge_attributes(
                 self.nx_graph, self.edge_labels, name="label")
+        if pos is not None:
+            self.pos = pos
+        else:
+            self.pos = nx.spring_layout(self.nx_graph, seed=42)
 
     @classmethod
     def from_csv(cls, filepath: str):
@@ -116,10 +121,16 @@ class Graph:
         return self.nx_graph.has_edge(u, v)
 
     def add_node(self, node, label=None):
+        # TODO: idk czy to zadziała a nie przekaze tylko referencji ale powinno byc ok
+        oldVertexes = list(self.nx_graph.nodes())
         self.nx_graph.add_node(node)
         if label:
             self.vertex_labels[node] = label
             nx.set_node_attributes(self.nx_graph, {node: label}, name="label")
+        self.pos[node] = (0, 0)
+        self.pos[node] = nx.spring_layout(
+            # spring layout oblicza pozycje wieszchołków ale mozna mu powiedzeć których ma nie ruszać wiec w ten sposób licze pozycje nowego
+            self.nx_graph, seed=42, pos=self, fixed=oldVertexes)[node]
 
     def add_edge(self, u, v, label=None):
         self.nx_graph.add_edge(u, v)
@@ -132,6 +143,7 @@ class Graph:
         self.nx_graph.remove_node(node)
         if node in self.vertex_labels:
             del self.vertex_labels[node]
+        # TODO: usunąć pozycję?
 
     def remove_edge(self, u, v):
         self.nx_graph.remove_edge(u, v)
@@ -145,8 +157,12 @@ class Graph:
         self.vertex_labels[node] = label
         nx.set_node_attributes(self.nx_graph, {node: label}, name="label")
 
-    def draw(self, title: str | None = None):
+    def draw(self, title: str | None = None, offset=(0, 0)):
+        # TODO: uzyc self.pos zamiast liczyć na nowo
         pos = nx.spring_layout(self.nx_graph, seed=42)
+        for key in pos:
+            pos[key][0] += offset[0]
+            pos[key][1] += offset[1]
         labels_to_draw = {}
         if self.vertex_labels:
             for node in self.nx_graph.nodes():
@@ -164,3 +180,4 @@ class Graph:
         if title:
             plt.title(title)
         plt.axis('off')
+        return pos
