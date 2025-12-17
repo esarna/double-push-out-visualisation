@@ -105,7 +105,9 @@ class Graph:
             line = line.strip()
             first_char = line[0]
             if first_char == 'v':
-                idx, label = line[1:].strip().split()
+                labels = line[1:].strip().split()
+                idx = labels[0]
+                labels = labels[1:]
                 if idx or idx.strip() == "":
                     idx = f'{len(vertices) + 1}'
                 try:
@@ -117,8 +119,8 @@ class Graph:
 
                 node_id = len(vertices) + 1
                 vertices.append(node_id)
-                if label:
-                    v_labels[node_id] = label
+                if labels:
+                    v_labels[node_id] = labels
                 else:
                     v_labels[node_id] = []
             elif first_char == 'e':
@@ -136,7 +138,7 @@ class Graph:
                     e_idx[(u, v)] = i
                     label = None
                     if len(parts) >= 4:
-                        e_labels[(u, v)] = parts[3].split()
+                        e_labels[(u, v)] = parts[3:]
                     edges.append((u, v))
         return cls(
             vertices=vertices,
@@ -211,24 +213,71 @@ class Graph:
         self.vertex_idx[node] = index
         nx.set_node_attributes(self.nx_graph, {node: index}, name="index")
 
-    def draw(self, title: str | None = None, offset=(0, 0)):
+    def draw(self, title: str | None = None, offset=(0, 0), color='#99ccff', ax=None):
         pos = {k: [self.pos[k][0] + offset[0], self.pos[k][1] + offset[1]]
                for k in self.pos.keys()}
-        labels_to_draw = {}
+
+        # indeksy
+        node_indices = {}
+        for node in self.nx_graph.nodes():
+            idx = self.vertex_idx.get(node)
+            node_indices[node] = str(idx) if idx is not None else str(node)
+
+        nx.draw_networkx_nodes(self.nx_graph, pos, node_color=color, node_size=300, ax=ax)
+        nx.draw_networkx_labels(self.nx_graph, pos, labels=node_indices, font_size=9, ax=ax)
+
+        # krawędzie
+        nx.draw_networkx_edges(self.nx_graph, pos, arrows=True, ax=ax)
+
+        # wierzchołki - etykiety w ramkach
         if self.vertex_labels:
-            for node in self.nx_graph.nodes():
-                if node in self.vertex_labels:
-                    labels_to_draw[node] = f"{node}:{self.vertex_labels[node]}"
-                else:
-                    labels_to_draw[node] = str(node)
-        else:
-            labels_to_draw = {node: str(node)
-                              for node in self.nx_graph.nodes()}
-        nx.draw(self.nx_graph, pos, with_labels=True, labels=labels_to_draw, arrows=True,
-                node_color='#99ccff', node_size=500, font_size=8)
-        nx.draw_networkx_edge_labels(
-            self.nx_graph, pos, edge_labels=self.edge_labels)
+            for node, (x, y) in pos.items():
+                lbl = self.vertex_labels.get(node)
+                if lbl:
+                    # Rysowanie tekstu z ramką (bbox)
+                    plt.text(x, y + 0.12, s=str(lbl),
+                             bbox=dict(facecolor='white', edgecolor='gray', boxstyle='round,pad=0.2', alpha=0.8),
+                             horizontalalignment='center', fontsize=8, color='black', zorder=10)
+
+        # krawędzie - indeksy i etykiety w ramkach
+        edge_indices_to_draw = {}
+        for u, v in self.nx_graph.edges():
+
+            e_idx = self.edge_idx.get((u, v))
+            if e_idx is not None:
+                edge_indices_to_draw[(u, v)] = f"[{e_idx}]"
+
+            e_lbl = self.edge_labels.get((u, v))
+            if e_lbl:
+                (x0, y0) = pos[u]
+                (x1, y1) = pos[v]
+
+                mid_x = (x0 + x1) / 2
+                mid_y = (y0 + y1) / 2
+
+                plt.text(mid_x, mid_y + 0.08, s=str(e_lbl),
+                         bbox=dict(facecolor='white', edgecolor='gray', boxstyle='round,pad=0.2', alpha=0.8),
+                         horizontalalignment='center', verticalalignment='center',
+                         fontsize=7, color='black', zorder=15)
+
+
+        if edge_indices_to_draw:
+            nx.draw_networkx_edge_labels(
+                self.nx_graph, pos,
+                edge_labels=edge_indices_to_draw,
+                font_size=8,
+                # Tło dla indeksu: przezroczyste lub lekko białe, bez ramki
+                bbox=dict(facecolor='white', edgecolor='none', alpha=1.0),
+                ax=ax
+            )
+
+        # ewentualny tytuł
         if title:
-            plt.title(title)
+            xs = [p[0] for p in pos.values()]
+            if xs:
+                center_x = sum(xs) / len(xs)
+                max_y = max([p[1] for p in pos.values()])
+                plt.text(center_x, max_y + 0.4, title, fontsize=12, fontweight='bold', ha='center')
+
         plt.axis('off')
         return pos

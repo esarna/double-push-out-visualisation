@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 from .graph import Graph
 import networkx as nx
 
@@ -6,9 +7,11 @@ class Production:
     def __init__(self, left: Graph, right: Graph):
         self.L = left
         self.R = right
+        self.K = None
+        self.compute_K_graph()
 
     # Obliczenie grafu sklejającego
-    def compute_interface(self) -> Graph:
+    def compute_K_graph(self) -> Graph:
         L_nodes = set(self.L.nodes())
         R_nodes = set(self.R.nodes())
         K_nodes = L_nodes.intersection(R_nodes)
@@ -24,6 +27,8 @@ class Production:
             label = self.L.get_labels(node)
             if label is not None:
                 K_graph.set_label(node, label)
+
+            self.K = K_graph
         return K_graph
 
     # zastosowanie produkcji
@@ -148,10 +153,37 @@ class Production:
         return output
 
     def draw(self, title: str | None = None):
-        pos = self.L.draw(title=title)
-        max_x = 0
-        for key in pos:
-            if pos[key][0] > max_x:
-                max_x = pos[key][0]
-        offset = (max_x * 2, 0)
-        self.R.draw(title=title, offset=offset)
+
+        plt.figure(figsize=(14, 6))
+
+        # kolorki
+        color_L = '#D44C33'
+        color_K = '#E0BA28'
+        color_R = '#6EB52D'
+
+        pos_L = self.L.draw(title="L (Lewy)", color=color_L)
+        if pos_L:
+            max_x_L = max(p[0] for p in pos_L.values())
+            min_x_L = min(p[0] for p in pos_L.values())
+            width_L = max_x_L - min_x_L
+            offset_K = (max_x_L + 1.5, 0)
+        else:
+            offset_K = (0, 0)
+
+
+        pos_K = self.K.draw(title="K (Sklejający)", offset=offset_K, color=color_K)
+        if pos_K:
+            max_x_K = max(p[0] for p in pos_K.values())
+            offset_R = (max_x_K + 1.5, 0)
+        else:
+            offset_R = (offset_K[0] + 2, 0)
+
+
+        self.R.draw(title="R (Prawy)", offset=offset_R, color=color_R)
+
+        # tytuł
+        if title:
+            plt.suptitle(title, fontsize=16)
+
+        plt.tight_layout()
+        plt.show()

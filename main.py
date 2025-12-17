@@ -36,7 +36,7 @@ except Exception as e:
 
 
 production = Production(L, R)
-K = production.compute_interface()
+K = production.compute_K_graph()
 result_graph = None
 
 try:
