@@ -31,7 +31,7 @@ class Production:
 
         # kopia wejścia
         G = input
-        output = Graph(vertices=G.nodes(), edges=G.edges())
+        output = Graph(vertices=G.nodes(), edges=G.edges(), pos=G.pos.copy())
 
         for node in G.nodes():
             lbl = G.get_labels(node)

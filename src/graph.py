@@ -46,7 +46,7 @@ class Graph:
         if pos is not None:
             self.pos = pos
         else:
-            self.pos = nx.spring_layout(self.nx_graph, seed=42)
+            self.pos = nx.spring_layout(self.nx_graph)
 
     @classmethod
     def from_csv(cls, filepath: str):
@@ -157,7 +157,7 @@ class Graph:
         return self.nx_graph.has_edge(u, v)
 
     def add_node(self, node, index=None, label=None):
-        # TODO: idk czy to zadziała a nie przekaze tylko referencji ale powinno byc ok
+        # wygląda że działa
         oldVertexes = list(self.nx_graph.nodes())
         self.nx_graph.add_node(node)
         if label:
@@ -169,9 +169,9 @@ class Graph:
                 self.nx_graph, {node: index}, name="index")
 
         self.pos[node] = (0, 0)
-        self.pos[node] = nx.spring_layout(
-            # spring layout oblicza pozycje wieszchołków ale mozna mu powiedzeć których ma nie ruszać wiec w ten sposób licze pozycje nowego
-            self.nx_graph, seed=42, pos=self, fixed=oldVertexes)[node]
+        self.pos = nx.spring_layout(
+            self.nx_graph, pos=self.pos, fixed=oldVertexes)
+        # spring layout oblicza pozycje wieszchołków ale mozna mu powiedzeć których ma nie ruszać wiec w ten sposób licze pozycje nowego
 
     def add_edge(self, u, v, index=None, label=None):
         self.nx_graph.add_edge(u, v)
@@ -189,7 +189,7 @@ class Graph:
         if node in self.vertex_labels:
             del self.vertex_labels[node]
             del self.vertex_idx[node]
-        # TODO: usunąć pozycję?
+        self.pos.pop(node)
 
     def remove_edge(self, u, v):
         self.nx_graph.remove_edge(u, v)
@@ -212,11 +212,8 @@ class Graph:
         nx.set_node_attributes(self.nx_graph, {node: index}, name="index")
 
     def draw(self, title: str | None = None, offset=(0, 0)):
-        # TODO: uzyc self.pos zamiast liczyć na nowo
-        pos = nx.spring_layout(self.nx_graph, seed=42)
-        for key in pos:
-            pos[key][0] += offset[0]
-            pos[key][1] += offset[1]
+        pos = {k: [self.pos[k][0] + offset[0], self.pos[k][1] + offset[1]]
+               for k in self.pos.keys()}
         labels_to_draw = {}
         if self.vertex_labels:
             for node in self.nx_graph.nodes():
