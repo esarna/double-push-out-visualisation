@@ -1,9 +1,9 @@
 Wszystko co nie zaczyna sie na v lub e jest komentarzem :)
 
-v a
-v b
-v c
+v 1 a
+v 2 b
+v 3 c
 
-e 1 3 1>3
-e 1 2 1>2
-e 2 3 2>3
+e 1 3 1 1>3
+e 1 2 2 1>2
+e 2 3 3 2>3
