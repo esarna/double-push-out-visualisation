@@ -166,20 +166,17 @@ class Production:
         pos_L = self.L.draw(title="L (Lewy)", color=color_L)
         if pos_L:
             max_x_L = max(p[0] for p in pos_L.values())
-            min_x_L = min(p[0] for p in pos_L.values())
-            width_L = max_x_L - min_x_L
             offset_K = (max_x_L + 1.5, 0)
         else:
             offset_K = (0, 0)
 
-
-        pos_K = self.K.draw(title="K (Sklejający)", offset=offset_K, color=color_K)
+        pos_K = self.K.draw(title="K (Sklejający)",
+                            offset=offset_K, color=color_K)
         if pos_K:
             max_x_K = max(p[0] for p in pos_K.values())
             offset_R = (max_x_K + 1.5, 0)
         else:
             offset_R = (offset_K[0] + 2, 0)
-
 
         self.R.draw(title="R (Prawy)", offset=offset_R, color=color_R)
 
@@ -189,7 +186,6 @@ class Production:
 
         plt.tight_layout()
         plt.show()
-
 
     def update_positions(self, input_graph: Graph, output_graph: Graph, mapping: list[int]):
         """
@@ -201,7 +197,8 @@ class Production:
         if len(mapping) != len(L_nodes_sorted):
             print("[ERROR] Długość mapowania nie zgadza się z liczbą węzłów w L.")
             return
-        mapping_dict = {Lnode: Gnode for Lnode, Gnode in zip(L_nodes_sorted, mapping)}
+        mapping_dict = {Lnode: Gnode for Lnode,
+                        Gnode in zip(L_nodes_sorted, mapping)}
 
         # 2. Zbieranie punktów do obliczenia transformacji (Wspólne L i Input)
         src_pts = []
@@ -245,7 +242,8 @@ class Production:
         L_nodes = set(self.L.nodes())
         R_nodes = set(self.R.nodes())
         to_remove_L = L_nodes - R_nodes
-        to_remove_G = {mapping_dict[ln] for ln in to_remove_L if ln in mapping_dict}
+        to_remove_G = {mapping_dict[ln]
+                       for ln in to_remove_L if ln in mapping_dict}
 
         # b) Ustalmy, co z Input przetrwało (tło + zachowana część produkcji)
         input_nodes = set(input_graph.nodes())
@@ -277,7 +275,7 @@ class Production:
                 new_pos = vec @ M
 
                 # Aktualizacja pozycji w grafie wynikowym
-                output_graph.pos[out_id] = tuple(new_pos)
+                output_graph.pos[out_id] = list(new_pos)
 
         # output_graph.draw()
         # plt.show()

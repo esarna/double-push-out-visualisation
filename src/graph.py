@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class Graph:
-    def __init__(self, vertices=None, edges=None, vertex_labels=None, edge_labels=None, vertex_idx=None, edge_idx=None, pos=None, pos_like = None):
+    def __init__(self, vertices=None, edges=None, vertex_labels=None, edge_labels=None, vertex_idx=None, edge_idx=None, pos=None, pos_like=None):
         self.nx_graph = nx.DiGraph()
         self.vertex_labels = {}
         self.vertex_idx = {}
@@ -46,16 +46,17 @@ class Graph:
         if pos is not None:
             self.pos = pos
         elif pos_like is not None:
-            oldVertexes = [node for node in list(self.nx_graph.nodes()) if node in pos_like]
-            self.pos = dict([ (node,pos_like[node]) if node in pos_like else (node,[0,0]) for node in list(self.nx_graph.nodes())])
-            x = [(node, pos_like[node]) if node in pos_like else (0, 0) for node in list(self.nx_graph.nodes())]
+            oldVertexes = [node for node in list(
+                self.nx_graph.nodes()) if node in pos_like]
+            self.pos = dict([(node, pos_like[node]) if node in pos_like else (
+                node, [0, 0]) for node in list(self.nx_graph.nodes())])
             self.pos = nx.spring_layout(
                 self.nx_graph, pos=self.pos, fixed=oldVertexes)
         else:
             self.pos = nx.spring_layout(self.nx_graph)
 
     @classmethod
-    def from_csv(cls, filepath: str, pos_like = None):
+    def from_csv(cls, filepath: str, pos_like=None):
         vertices = []
         edges = []
         labels = {}
@@ -92,10 +93,10 @@ class Graph:
                     continue  # jest jakiś syf zamiast dwóch liczb
                 edges.append((u, v))
                 # TODO: trzebaby dodać że następne częsci linii to etykiety, np 3, 1, red (3->1 etykieta= red)
-        return cls(vertices=vertices, edges=edges, vertex_labels=(labels if labels else None), pos_like = pos_like)
+        return cls(vertices=vertices, edges=edges, vertex_labels=(labels if labels else None), pos_like=pos_like)
 
     @classmethod
-    def from_obj(cls, filepath: str, pos_like = None):
+    def from_obj(cls, filepath: str, pos_like=None):
         vertices = []
         edges = []
         v_labels = {}
@@ -141,7 +142,6 @@ class Graph:
                     if i is None:
                         i = len(edges) + 1
                     e_idx[(u, v)] = i
-                    label = None
                     if len(parts) >= 4:
                         e_labels[(u, v)] = parts[3:]
                     edges.append((u, v))
@@ -152,7 +152,7 @@ class Graph:
             edge_labels=(e_labels if e_labels else None),
             vertex_idx=(v_idx if v_idx else None),
             edge_idx=(e_idx if e_idx else None),
-            pos_like = pos_like
+            pos_like=pos_like
         )
 
     def nodes(self):
@@ -176,7 +176,7 @@ class Graph:
             nx.set_node_attributes(
                 self.nx_graph, {node: index}, name="index")
 
-        self.pos[node] = (0, 0)
+        self.pos[node] = [0.0, 0.0]
         self.pos = nx.spring_layout(
             self.nx_graph, pos=self.pos, fixed=oldVertexes)
         # spring layout oblicza pozycje wieszchołków ale mozna mu powiedzeć których ma nie ruszać wiec w ten sposób licze pozycje nowego
@@ -229,8 +229,10 @@ class Graph:
             idx = self.vertex_idx.get(node)
             node_indices[node] = str(idx) if idx is not None else str(node)
 
-        nx.draw_networkx_nodes(self.nx_graph, pos, node_color=color, node_size=300, ax=ax)
-        nx.draw_networkx_labels(self.nx_graph, pos, labels=node_indices, font_size=9, ax=ax)
+        nx.draw_networkx_nodes(
+            self.nx_graph, pos, node_color=color, node_size=300, ax=ax)
+        nx.draw_networkx_labels(
+            self.nx_graph, pos, labels=node_indices, font_size=9, ax=ax)
 
         # krawędzie
         nx.draw_networkx_edges(self.nx_graph, pos, arrows=True, ax=ax)
@@ -242,7 +244,8 @@ class Graph:
                 if lbl:
                     # Rysowanie tekstu z ramką (bbox)
                     plt.text(x, y + 0.12, s=str(lbl),
-                             bbox=dict(facecolor='white', edgecolor='gray', boxstyle='round,pad=0.2', alpha=0.8),
+                             bbox=dict(facecolor='white', edgecolor='gray',
+                                       boxstyle='round,pad=0.2', alpha=0.8),
                              horizontalalignment='center', fontsize=8, color='black', zorder=10)
 
         # krawędzie - indeksy i etykiety w ramkach
@@ -262,10 +265,10 @@ class Graph:
                 mid_y = (y0 + y1) / 2
 
                 plt.text(mid_x, mid_y + 0.08, s=str(e_lbl),
-                         bbox=dict(facecolor='white', edgecolor='gray', boxstyle='round,pad=0.2', alpha=0.8),
+                         bbox=dict(facecolor='white', edgecolor='gray',
+                                   boxstyle='round,pad=0.2', alpha=0.8),
                          horizontalalignment='center', verticalalignment='center',
                          fontsize=7, color='black', zorder=15)
-
 
         if edge_indices_to_draw:
             nx.draw_networkx_edge_labels(
@@ -283,7 +286,8 @@ class Graph:
             if xs:
                 center_x = sum(xs) / len(xs)
                 max_y = max([p[1] for p in pos.values()])
-                plt.text(center_x, max_y + 0.4, title, fontsize=12, fontweight='bold', ha='center')
+                plt.text(center_x, max_y + 0.4, title, fontsize=12,
+                         fontweight='bold', ha='center')
 
         plt.axis('off')
         return pos
