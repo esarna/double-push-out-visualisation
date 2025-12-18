@@ -17,6 +17,16 @@ if len(sys.argv) < 5:
     mapping_file = "graphs/mapping.csv"
 
     # input_graph_file = "graphs/graphs_obj/initial2_graph.obj"
+    # left_graph_file = "graphs/graphs_obj/pl2.obj"
+    # right_graph_file = "graphs/graphs_obj/pr2.obj"
+    # mapping_file = "graphs/mapping2.csv"
+
+    # input_graph_file = "graphs/graphs_obj/k1.obj"
+    # left_graph_file = "graphs/graphs_obj/pl1.obj"
+    # right_graph_file = "graphs/graphs_obj/pr1.obj"
+    # mapping_file = "graphs/mapping.csv"
+
+    # input_graph_file = "graphs/graphs_obj/initial2_graph.obj"
     # left_graph_file = "graphs/graphs_obj/production_left2.obj"
     # right_graph_file = "graphs/graphs_obj/production_right2.obj"
     # mapping_file = "graphs/mapping.csv"
