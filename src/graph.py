@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class Graph:
-    def __init__(self, vertices=None, edges=None, vertex_labels=None, edge_labels=None, vertex_idx=None, edge_idx=None, pos=None):
+    def __init__(self, vertices=None, edges=None, vertex_labels=None, edge_labels=None, vertex_idx=None, edge_idx=None, pos=None, pos_like = None):
         self.nx_graph = nx.DiGraph()
         self.vertex_labels = {}
         self.vertex_idx = {}
@@ -45,11 +45,17 @@ class Graph:
 
         if pos is not None:
             self.pos = pos
+        elif pos_like is not None:
+            oldVertexes = [node for node in list(self.nx_graph.nodes()) if node in pos_like]
+            self.pos = dict([ (node,pos_like[node]) if node in pos_like else (node,[0,0]) for node in list(self.nx_graph.nodes())])
+            x = [(node, pos_like[node]) if node in pos_like else (0, 0) for node in list(self.nx_graph.nodes())]
+            self.pos = nx.spring_layout(
+                self.nx_graph, pos=self.pos, fixed=oldVertexes)
         else:
             self.pos = nx.spring_layout(self.nx_graph)
 
     @classmethod
-    def from_csv(cls, filepath: str):
+    def from_csv(cls, filepath: str, pos_like = None):
         vertices = []
         edges = []
         labels = {}
@@ -87,10 +93,10 @@ class Graph:
                     continue  # jest jakiś syf zamiast dwóch liczb
                 edges.append((u, v))
                 # TODO: trzebaby dodać że następne częsci linii to etykiety, np 3, 1, red (3->1 etykieta= red)
-        return cls(vertices=vertices, edges=edges, vertex_labels=(labels if labels else None))
+        return cls(vertices=vertices, edges=edges, vertex_labels=(labels if labels else None), pos_like = pos_like)
 
     @classmethod
-    def from_obj(cls, filepath: str):
+    def from_obj(cls, filepath: str, pos_like = None):
         vertices = []
         edges = []
         v_labels = {}
@@ -146,7 +152,8 @@ class Graph:
             vertex_labels=(v_labels if v_labels else None),
             edge_labels=(e_labels if e_labels else None),
             vertex_idx=(v_idx if v_idx else None),
-            edge_idx=(e_idx if e_idx else None)
+            edge_idx=(e_idx if e_idx else None),
+            pos_like = pos_like
         )
 
     def nodes(self):

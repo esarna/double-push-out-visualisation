@@ -21,7 +21,7 @@ class Production:
         # Krawędzie wspólne w L i R
         K_edges = [(u, v) for (u, v) in L_edges.intersection(
             R_edges) if u in K_nodes and v in K_nodes]
-        K_graph = Graph(vertices=list(K_nodes), edges=K_edges)
+        K_graph = Graph(vertices=list(K_nodes), edges=K_edges, pos=self.L.pos)
 
         for node in K_graph.nodes():
             label = self.L.get_labels(node)

@@ -4,10 +4,10 @@ import src as dp
 # dp.Graph.from_csv("graphs/production_right.csv").draw()
 dp.Graph.from_obj("graphs/graph.obj").draw()
 plt.show()
-# #%%
-# G = dp.Graph.from_csv("graphs/initial2_graph.csv")
-# L = dp.Graph.from_csv("graphs/production_left.csv")
-# R = dp.Graph.from_csv("graphs/production_right.csv")
+
+G = dp.Graph.from_csv("graphs/initial2_graph.csv")
+L = dp.Graph.from_csv("graphs/production_left.csv")
+R = dp.Graph.from_csv("graphs/production_right.csv", pos_like=L.pos)
 # #%%
 # G.draw()
 # #%%
