@@ -64,6 +64,19 @@ class Production:
             if not output.has_edge(uG, vG):
                 raise Exception(
                     f"Brak wymaganej krawędzi ({u}->{v}) z L w grafie początkowym (oczekiwano {uG}->{vG}).")
+        # TODO: Sprawdzenie czy nie brak krawędzi w drugą stronę?
+        for (u, v) in output.edges():
+            uL = None
+            vL = None
+            for lnode, gnode in mapping_dict.items():
+                if gnode == u:
+                    uL = lnode
+                if gnode == v:
+                    vL = lnode
+            if uL is not None and vL is not None:
+                if not self.L.has_edge(uL, vL):
+                    raise Exception(
+                        f"Krawędź ({u}->{v}) w G nie jest dozwolona – brak odpowiadającej krawędzi ({uL}->{vL}) w L.")
 
         # Węzły
         L_nodes = set(self.L.nodes())

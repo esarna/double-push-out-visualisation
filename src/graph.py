@@ -196,14 +196,14 @@ class Graph:
         self.nx_graph.remove_node(node)
         if node in self.vertex_labels:
             del self.vertex_labels[node]
-            del self.vertex_idx[node]
+            # del self.vertex_idx[node]
         self.pos.pop(node)
 
     def remove_edge(self, u, v):
         self.nx_graph.remove_edge(u, v)
         if (u, v) in self.edge_labels:
             del self.edge_labels[(u, v)]
-            del self.edge_idx[(u, v)]
+            # del self.edge_idx[(u, v)]
 
     def get_labels(self, node):
         return self.vertex_labels.get(node)
