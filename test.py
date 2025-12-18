@@ -9,7 +9,8 @@ G = dp.Graph.from_csv("graphs/graphs_csv/initial2_graph.csv")
 L = dp.Graph.from_csv("graphs/graphs_csv/production_left.csv")
 R = dp.Graph.from_csv("graphs/graphs_csv/production_right.csv", pos_like=L.pos)
 # #%%
-# G.draw()
+G.draw()
+plt.show()
 # #%%
 def load_mappings(filename):
     with open(filename, 'r') as f:
@@ -21,8 +22,8 @@ mapping = load_mappings("graphs/mapping.csv")
 production = dp.Production(L, R)
 result_graph = production.apply(G, mapping, transform_positions=True)
 
-# production.draw()
-# plt.show()
-#
-# result_graph.draw()
-# plt.show()
+production.draw()
+plt.show()
+
+result_graph.draw()
+plt.show()

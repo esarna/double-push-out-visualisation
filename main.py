@@ -15,6 +15,23 @@ if len(sys.argv) < 5:
     left_graph_file = "graphs/graphs_obj/production_left.obj"
     right_graph_file = "graphs/graphs_obj/production_right.obj"
     mapping_file = "graphs/mapping.csv"
+
+    # input_graph_file = "graphs/graphs_obj/initial2_graph.obj"
+    # left_graph_file = "graphs/graphs_obj/production_left2.obj"
+    # right_graph_file = "graphs/graphs_obj/production_right2.obj"
+    # mapping_file = "graphs/mapping.csv"
+
+    # nie ma krawędzi
+    # input_graph_file = "graphs/graphs_obj/initial3_graph.obj"
+    # left_graph_file = "graphs/graphs_obj/production_left2.obj"
+    # right_graph_file = "graphs/graphs_obj/production_right2.obj"
+    # mapping_file = "graphs/mapping.csv"
+
+    # edge w drugą stronę
+    # input_graph_file = "graphs/graphs_obj/initial4_graph.obj"
+    # left_graph_file = "graphs/graphs_obj/production_left2.obj"
+    # right_graph_file = "graphs/graphs_obj/production_right2.obj"
+    # mapping_file = "graphs/mapping.csv"
 else:
     input_graph_file = sys.argv[1]
     left_graph_file = sys.argv[2]
@@ -43,11 +60,14 @@ except Exception as e:
         print(f"Błąd wczytywania plików: {e}")
         sys.exit(1)
 
+# wyrzucanie indeksów edgy (na razie)
+G.edge_idx = {}
+L.edge_idx = {}
+R.edge_idx = {}
 
 production = Production(L, R)
 production.draw()
 
-G.edge_idx = {}
 plt.figure(figsize=(5, 4))
 plt.title("Graf wejściowy (G)")
 G.draw()
