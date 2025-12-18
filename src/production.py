@@ -1,4 +1,3 @@
-from Cryptodome.SelfTest.Cipher.test_SIV import transform
 from matplotlib import pyplot as plt
 import numpy as np
 from .graph import Graph
@@ -44,7 +43,6 @@ class Production:
             if lbl is not None:
                 output.set_label(node, lbl)
 
-        # TODO: nie wiem czy mapowianie się dobrze wczytuje i stosuje
         # Mapowanie wierzchołków L->G
         L_nodes_sorted = sorted(self.L.nodes())
 

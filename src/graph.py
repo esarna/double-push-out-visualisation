@@ -75,7 +75,6 @@ class Graph:
             vertices = list(range(1, count+1))
 
             # na razie etykiety w pierwszej linii 3, yellow, orange, blue
-            # TODO: trzebaby to lepiej zrobić
             if len(first_line) > 1:
                 labels_list = [x.strip() for x in first_line[1:]]
                 if len(labels_list) == count:
