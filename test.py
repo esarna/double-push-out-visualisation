@@ -5,9 +5,9 @@ import src as dp
 # dp.Graph.from_obj("graphs/graph.obj").draw()
 # plt.show()
 
-G = dp.Graph.from_csv("graphs/initial2_graph.csv")
-L = dp.Graph.from_csv("graphs/production_left.csv")
-R = dp.Graph.from_csv("graphs/production_right.csv", pos_like=L.pos)
+G = dp.Graph.from_csv("graphs/graphs_csv/initial2_graph.csv")
+L = dp.Graph.from_csv("graphs/graphs_csv/production_left.csv")
+R = dp.Graph.from_csv("graphs/graphs_csv/production_right.csv", pos_like=L.pos)
 # #%%
 # G.draw()
 # #%%
